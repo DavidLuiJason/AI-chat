@@ -249,26 +249,43 @@ EXECUTE FUNCTION check_dispatch_claim_attempt_state();
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS evidence_records (
     evidence_id VARCHAR(128) PRIMARY KEY,
-    effect_key VARCHAR(255) NOT NULL REFERENCES effects(effect_key) ON DELETE RESTRICT,
-    attempt_id VARCHAR(128) NOT NULL REFERENCES attempts(attempt_id) ON DELETE RESTRICT,
+    effect_key VARCHAR(255) NULL REFERENCES effects(effect_key) ON DELETE RESTRICT,
+    attempt_id VARCHAR(128) NULL REFERENCES attempts(attempt_id) ON DELETE RESTRICT,
     claim_id VARCHAR(128) NULL REFERENCES dispatch_claims(claim_id) ON DELETE RESTRICT,
     evidence_type VARCHAR(64) NOT NULL CHECK (evidence_type IN (
         'EXECUTION_CONFIRMED',
         'NON_EXECUTION_CONFIRMED',
+        'PROVIDER_ACCEPTED',
         'PROVIDER_REJECTED',
         'PROVIDER_TIMEOUT',
         'UNKNOWN_DISPATCH_FAILURE',
         'RECONCILIATION_REPORT'
     )),
+    claim_semantics VARCHAR(64) NULL,
     correlation_method VARCHAR(64) NOT NULL,
     client_correlation_id VARCHAR(128) NULL,
     provider_assigned_id VARCHAR(255) NULL,
     provider_dedup_identity VARCHAR(255) NULL,
     raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+    payload_hash VARCHAR(128) NULL,
+    source_channel VARCHAR(128) NULL,
+    source_event_id VARCHAR(255) NULL UNIQUE,
+    capability_id VARCHAR(128) NULL,
+    capability_version VARCHAR(32) NULL,
     recorded_by_principal_id VARCHAR(128) NULL REFERENCES principals(principal_id) ON DELETE RESTRICT,
     verified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Idempotent column additions for existing databases
+ALTER TABLE evidence_records ALTER COLUMN attempt_id DROP NOT NULL;
+ALTER TABLE evidence_records ALTER COLUMN effect_key DROP NOT NULL;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS claim_semantics VARCHAR(64) NULL;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS payload_hash VARCHAR(128) NULL;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS source_channel VARCHAR(128) NULL;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS source_event_id VARCHAR(255) NULL UNIQUE;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS capability_id VARCHAR(128) NULL;
+ALTER TABLE evidence_records ADD COLUMN IF NOT EXISTS capability_version VARCHAR(32) NULL;
 
 -- Trigger: Append-only enforcement on evidence_records
 CREATE OR REPLACE FUNCTION enforce_evidence_append_only()

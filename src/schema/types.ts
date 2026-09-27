@@ -233,22 +233,38 @@ export interface DispatchClaim {
 export type EvidenceType =
   | 'EXECUTION_CONFIRMED'
   | 'NON_EXECUTION_CONFIRMED'
+  | 'PROVIDER_ACCEPTED'
   | 'PROVIDER_REJECTED'
   | 'PROVIDER_TIMEOUT'
   | 'UNKNOWN_DISPATCH_FAILURE'
   | 'RECONCILIATION_REPORT';
 
+export type ClaimSemantics =
+  | 'ACCEPTED'
+  | 'EXECUTED'
+  | 'CONFIRMED_NEVER_WILL_EXECUTE'
+  | 'PROVIDER_REJECTED'
+  | 'TIMEOUT'
+  | 'UNKNOWN_FAILURE'
+  | 'UNCORRELATED';
+
 export interface EvidenceRecord {
   evidence_id: string;
-  effect_key: string;
-  attempt_id: string;
+  effect_key: string | null;
+  attempt_id: string | null;
   claim_id: string | null;
   evidence_type: EvidenceType;
+  claim_semantics?: ClaimSemantics | null;
   correlation_method: string;
   client_correlation_id: string | null;
   provider_assigned_id: string | null;
   provider_dedup_identity: string | null;
   raw_payload: Record<string, unknown>;
+  payload_hash?: string | null;
+  source_channel?: string | null;
+  source_event_id?: string | null;
+  capability_id?: string | null;
+  capability_version?: string | null;
   recorded_by_principal_id: string | null;
   verified_at: Date;
   recorded_at: Date;

@@ -13,7 +13,8 @@
     "test:stage2": "tsx scripts/validate-stage2.ts",
     "test:stage3": "tsx scripts/validate-stage3.ts",
     "test:stage4": "tsx scripts/validate-stage4.ts",
-    "test": "tsx scripts/validate-schema.ts && tsx scripts/validate-stage2.ts && tsx scripts/validate-stage3.ts && tsx scripts/validate-stage4.ts"
+    "test:stage5": "tsx scripts/validate-stage5.ts",
+    "test": "tsx scripts/validate-schema.ts && tsx scripts/validate-stage2.ts && tsx scripts/validate-stage3.ts && tsx scripts/validate-stage4.ts && tsx scripts/validate-stage5.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",
